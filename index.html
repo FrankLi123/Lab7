@@ -190,14 +190,13 @@
             method: 'put',
             body: JSON.stringify({author:author, title: title})        
             })
-            .then(response=>{
+            .then(response =>{
               if (!response.ok) {
             throw new Error(response.status);
           }
            response.json()
-           }).then(function(){
-             output.value =  JSON.stringify({ author:author, title: title});
-
+           }).then(data=>{
+             output.value =  JSON.stringify(data);
             })
              .catch(function(err) {
                output.value ='Network Error: 404';
