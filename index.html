@@ -95,8 +95,8 @@
           output.value = arr;
          })
          .catch(function(err) {
-            alert('Errors！！')
-            });
+            output.value = 'Network Error: 404';
+          });
         
       }
 
@@ -107,19 +107,23 @@
       function fetchOne() {
        document.getElementById('recordForm').style.display = 'none';
        var result = window.prompt('enter record id', ' ');
-
         let url = 'http://localhost:3000/posts'+ '/'+ result;
-
         let output = document.getElementById("output");
+
         fetch(url)
-        .then( response => {return response.json()})
+        .then( response => {
+          if (!response.ok) {
+            throw new Error(response.status);
+          }
+          response.json()})
         .then(data =>{
-        let arr = JSON.stringify(data);
-        output.value = arr;
+            let arr = JSON.stringify(data);
+            output.value = arr;
         })
         .catch(function(err) {
-            alert('Errors！！')
-            });
+          output.value ='Network Error: 404';
+        });
+      
       }
 
       // This function should use fetch to create one entry in the given endpoint.
@@ -141,17 +145,19 @@
             headers: {
                     'Content-Type' : 'application/json'
             },
-            method: 'post',
+            method: "post",
             body: JSON.stringify({author:author, title: title })        
             })
-            .then(function(response){
-            response.json();
-            }).then(function(){
-             output.value =  JSON.stringify({ author:author, title: title});
+            .then(response => {
+              if(!response.ok) throw new Error(response.status);
+            response.json().then(function(data){
+              output.value = JSON.stringify(data) ;
+            }) 
 
-            }).catch(function(err) {
-            alert('Errors！！')
-            });
+          })
+            .catch(function(err) {
+               output.value ='Network Error: 404';
+            })
 
         }
 
@@ -173,9 +179,29 @@
             let output = document.getElementById("output");
             var title = document.getElementById("title").value;
             var author = document.getElementById("author").value;
+            var id = document.getElementById("recordID").value;
+
+            let url=  'http://localhost:3000/posts'+ '/'+ id;
+            fetch(url, {
+            headers: {
+                    'Content-Type' : 'application/json'
+            },
+            method: 'put',
+            body: JSON.stringify({author:author, title: title})        
+            })
+            .then(response=>{
+              if (!response.ok) {
+            throw new Error(response.status);
+          }
+           response.json()
+           }).then(function(){
+             output.value =  JSON.stringify({ author:author, title: title});
+
+            })
+             .catch(function(err) {
+               output.value ='Network Error: 404';
+            });
         }
-
-
       }
 
       // This function should use fetch to delete one existing entry in the given endpoint.
@@ -184,8 +210,27 @@
       // request; check the writeup to view the URL pattern for get one and delete. THERE IS NO 
       // delete all, only delete one.
       function deleteRecord() {
-        // TODO
-      }
+        var result = window.prompt('enter record id', ' ');
+
+        let url = 'http://localhost:3000/posts'+ '/'+ result;
+      
+        fetch(url, {
+        headers: {
+                'Content-Type' : 'application/json'
+        },
+        method: 'delete',
+        body: JSON.stringify({author:author, title: title})        
+        })
+        .then(function(response){
+        response.json();
+        }).then(function(){
+        output.value =  JSON.stringify({ author:author, title: title});
+        })
+         .catch(function(err) {
+               output.value ='Network Error: 404';
+            });
+  }
+
 
       window.addEventListener('DOMContentLoaded', () => {
         // Action Form Event Listener
